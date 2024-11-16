@@ -33,7 +33,7 @@ data:extend {
             { type = "item", name = "sand", amount = 4 }
         },
         results = {
-            { type = "item", name = "fine-sand", amount = 6 }
+            { type = "item", name = "fine-sand", amount = 8 }
         },
         auto_recycle = false
     },
@@ -51,7 +51,7 @@ data:extend {
             { type = "item", name = "gravel", amount = 4 }
         },
         results = {
-            { type = "item", name = "sand", amount = 8 }
+            { type = "item", name = "sand", amount = 12 }
         },
         auto_recycle = false
     },
@@ -65,7 +65,7 @@ data:extend {
         pick_sound = item_sounds.landfill_inventory_pickup,
         drop_sound = item_sounds.sulfur_inventory_move,
         inventory_move_sound = item_sounds.sulfur_inventory_move,
-        weight = 1*kg,
+        weight = 0.5*kg,
         stack_size = 50
     },
     {
@@ -78,7 +78,7 @@ data:extend {
         pick_sound = item_sounds.grenade_inventory_pickup,
         drop_sound = item_sounds.grenade_inventory_move,
         inventory_move_sound = item_sounds.grenade_inventory_move,
-        weight = 1*kg,
+        weight = 0.1*kg,
         stack_size = 200
     },
     {
@@ -96,7 +96,7 @@ data:extend {
             { type = "fluid", name = "sulfuric-acid", amount = 10 }
         },
         results = {
-            { type = "item", name = "silicon", amount = 2 },
+            { type = "item", name = "silicon", amount = 8 },
             { type = "item", name = "carbon",  amount = 1,
               probability = 0.2, show_details_in_recipe_tooltip = false },
         },
@@ -117,10 +117,10 @@ data:extend {
         category = "smelting",
         energy_required = 4,
         ingredients = {
-            { type = "item", name = "silicon", amount = 1 }
+            { type = "item", name = "silicon", amount = 2 }
         },
         results = {
-            { type = "item", name = "optical-fiber", amount = 2 }
+            { type = "item", name = "optical-fiber", amount = 6 }
         },
         allow_productivity = true,
     }

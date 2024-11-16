@@ -1,64 +1,4 @@
-function indexOf(array, pred)
-    for i, v in ipairs(array) do
-        if pred(v) then
-            return i
-        end
-    end
-    error("failed to find value in array")
-end
-
-function hasName(name)
-    return function(e)
-        return e.name == name
-    end
-end
-
-function modifyIngredient(recipe, ingredientName, callback)
-    local index = indexOf(recipe.ingredients, hasName(ingredientName))
-    callback(recipe.ingredients[index])
-end
-
-function replaceIngredient(recipe, oldName, newName, newAmount)
-    modifyIngredient(recipe, oldName, function(ingredient)
-        ingredient.name = newName
-        if newAmount ~= nil then
-            ingredient.amount = newAmount
-        end
-    end)
-end
-
-function addIngredient(recipe, ingredientName, ingredientAmount)
-    table.insert(recipe.ingredients, { type = "item", name = ingredientName, amount = ingredientAmount })
-end
-
-function modifyResult(recipe, resultName, callback)
-    local index = indexOf(recipe.results, hasName(resultName))
-    callback(recipe.results[index])
-end
-
-function replaceResult(recipe, oldName, newName, newAmount)
-    modifyResult(recipe, oldName, function(result)
-        result.name = newName
-        if newAmount ~= nil then
-            result.amount = newAmount
-        end
-    end)
-end
-
-function addResult(recipe, resultName, resultAmount)
-    table.insert(recipe.results, { type = "item", name = resultName, amount = resultAmount })
-end
-
-function unlockRecipe(technology, recipeName)
-    table.insert(technology.effects, { type = "unlock-recipe", recipe = recipeName })
-end
-
-function lockRecipe(technology, recipeName)
-    local index = indexOf(technology.effects, function(e)
-        return e.type == "unlock-recipe" and e.recipe == recipeName
-    end)
-    table.remove(technology.effects, index)
-end
+local data_util = require("./data-util.lua")
 
 local gravel_to_sand = data.raw.recipe["gravel-to-sand"]
 gravel_to_sand.localised_name = "Sand - Gravel crushing"
@@ -91,9 +31,25 @@ silicon_wafer_recipe.icon = "__EVRefiningAAIBridge__/graphics/icons/silicon-wafe
 silicon_wafer_recipe.category = "smelting"
 silicon_wafer_recipe.energy_required = 4
 silicon_wafer_recipe.ingredients = {
-    { type = "item", name = "silicon", amount = 2 }
+    { type = "item", name = "silicon", amount = 8 }
 }
-replaceResult(silicon_wafer_recipe, silicon_wafer_item.name, silicon_wafer_item.name, 1)
+silicon_wafer_recipe.results = {
+    { type = "item", name = silicon_wafer_item.name, amount = 8 }
+}
+
+local electronic_circuit = data.raw.recipe["electronic-circuit"]
+electronic_circuit.category = "electronics-or-assembling"
+electronic_circuit.energy_required = 1.5
+electronic_circuit.ingredients = {
+    { type = "item", name = "copper-cable", amount = 1 },
+    { type = "item", name = silicon_wafer_item.name, amount = 2 }
+}
+electronic_circuit.results = {
+    { type = "item", name = "electronic-circuit", amount = 2 }
+}
+
+local electronic_circuit_wood = data.raw.recipe["electronic-circuit-wood"]
+electronic_circuit_wood.allow_as_intermediate = true
 
 local sand_processing = data.raw.technology["sand-processing"]
 unlockRecipe(sand_processing, "craft-sand-to-fine")
