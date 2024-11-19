@@ -1,5 +1,8 @@
 local data_util = require("./data-util.lua")
 
+
+-- sand changes --
+
 local gravel_to_sand = data.raw.recipe["gravel-to-sand"]
 gravel_to_sand.localised_name = "Sand - Gravel crushing"
 gravel_to_sand.icon = "__EVRefiningAAIBridge__/graphics/icons/gravel-to-sand.png"
@@ -20,6 +23,20 @@ local sand_to_brick = data.raw.recipe["sand-to-brick"]
 sand_to_brick.localised_name = "Stone brick - Sand smelting"
 sand_to_brick.icon = "__EVRefiningAAIBridge__/graphics/icons/sand-to-brick.png"
 replaceIngredient(sand_to_brick, "fine-sand", "sand")
+
+local sand_processing = data.raw.technology["sand-processing"]
+unlockRecipe(sand_processing, "craft-sand-to-fine")
+
+local base_ore_processing = data.raw.technology["base-ore-processing"]
+unlockRecipe(base_ore_processing, "gravel-to-sand")
+unlockRecipe(base_ore_processing, "grind-sand-to-fine")
+
+local advanced_ore_processing = data.raw.technology["advanced-ore-processing"]
+lockRecipe(advanced_ore_processing, "gravel-to-sand")
+unlockRecipe(advanced_ore_processing, "gravel-to-sand-2")
+
+
+-- silicon addition --
 
 local silicon_wafer_item = data.raw.item["stone-tablet"]
 silicon_wafer_item.localised_name = "Silicon Wafer"
@@ -51,17 +68,6 @@ electronic_circuit.results = {
 local electronic_circuit_wood = data.raw.recipe["electronic-circuit-wood"]
 electronic_circuit_wood.allow_as_intermediate = true
 
-local sand_processing = data.raw.technology["sand-processing"]
-unlockRecipe(sand_processing, "craft-sand-to-fine")
-
-local base_ore_processing = data.raw.technology["base-ore-processing"]
-unlockRecipe(base_ore_processing, "gravel-to-sand")
-unlockRecipe(base_ore_processing, "grind-sand-to-fine")
-
-local advanced_ore_processing = data.raw.technology["advanced-ore-processing"]
-lockRecipe(advanced_ore_processing, "gravel-to-sand")
-unlockRecipe(advanced_ore_processing, "gravel-to-sand-2")
-
 local sulfur_processing = data.raw.technology["sulfur-processing"]
 unlockRecipe(sulfur_processing, "sand-to-silicon")
 unlockRecipe(sulfur_processing, silicon_wafer_recipe.name)
@@ -80,3 +86,72 @@ replaceIngredient(solar_panel, "copper-plate", silicon_wafer_item.name)
 local electronics = data.raw.technology["electronics"]
 lockRecipe(electronics, silicon_wafer_recipe.name)
 lockRecipe(electronics, "electronic-circuit")
+
+
+-- force ev refining to be a pure-nauvis tech tree --
+
+local advanced_ore_processing = data.raw.technology["advanced-ore-processing"]
+removePrerequisite(advanced_ore_processing, "metallurgic-science-pack")
+removeTechIngredient(advanced_ore_processing, "metallurgic-science-pack")
+
+local advanced_coal_processing = data.raw.technology["advanced-coal-processing"]
+removePrerequisite(advanced_coal_processing, "metallurgic-science-pack")
+removeTechIngredient(advanced_coal_processing, "metallurgic-science-pack")
+
+local coal_enriching = data.raw.technology["coal-enriching"]
+removePrerequisite(coal_enriching, "metallurgic-science-pack")
+removeTechIngredient(coal_enriching, "metallurgic-science-pack")
+
+local elite_ore_processing = data.raw.technology["elite-ore-processing"]
+removePrerequisite(elite_ore_processing, "electromagnetic-science-pack")
+removeTechIngredient(elite_ore_processing, "metallurgic-science-pack")
+removeTechIngredient(elite_ore_processing, "electromagnetic-science-pack")
+
+local ultimate_ore_processing = data.raw.technology["ultimate-ore-processing"]
+removePrerequisite(ultimate_ore_processing, "space-science-pack")
+removePrerequisite(ultimate_ore_processing, "agricultural-science-pack")
+removeTechIngredient(ultimate_ore_processing, "space-science-pack")
+removeTechIngredient(ultimate_ore_processing, "metallurgic-science-pack")
+removeTechIngredient(ultimate_ore_processing, "agricultural-science-pack")
+removeTechIngredient(ultimate_ore_processing, "electromagnetic-science-pack")
+
+local ore_crushing_productivity = data.raw.technology["ore-crushing-productivity"]
+removePrerequisite(ore_crushing_productivity, "metallurgic-science-pack")
+removeTechIngredient(ore_crushing_productivity, "metallurgic-science-pack")
+addTechIngredient(ore_crushing_productivity, "utility-science-pack", 1)
+ore_crushing_productivity.unit.count_formula = "1.5^L*1000"
+ore_crushing_productivity.unit.count = nil
+ore_crushing_productivity.unit.time = 60
+ore_crushing_productivity.max_level = "infinite"
+ore_crushing_productivity.upgrade = true
+
+local crusher3 = data.raw.recipe["crusher3"]
+replaceIngredient(crusher3, "productivity-module-2", "productivity-module", 4)
+replaceIngredient(crusher3, "efficiency-module-2", "efficiency-module", 4)
+replaceIngredient(crusher3, "speed-module-2", "speed-module", 4)
+
+local echamber3 = data.raw.recipe["echamber3"]
+replaceIngredient(echamber3, "productivity-module-2", "productivity-module", 4)
+replaceIngredient(echamber3, "efficiency-module-2", "efficiency-module", 4)
+replaceIngredient(echamber3, "speed-module-2", "speed-module", 4)
+
+local pchamber2 = data.raw.recipe["pchamber2"]
+replaceIngredient(pchamber2, "productivity-module-3", "productivity-module", 12)
+replaceIngredient(pchamber2, "speed-module-3", "speed-module", 12)
+
+
+-- a few of the techs have unnecessary dependency on coal liquefaction, which is moved in space age --
+
+for k, tech in pairs(data.raw.technology) do
+    removePrerequisite(tech, "coal-liquefaction", true) -- true means this is an optional removal, does not error if the prerequisite doesn't exist
+end
+
+
+-- remove space science dependency for logistics techs --
+
+for k, v in pairs(data.raw.technology) do
+    if k:find("logistic") then
+        removePrerequisite(v, "space-science-pack", true)
+        removeTechIngredient(v, "space-science-pack", true)
+    end
+end
