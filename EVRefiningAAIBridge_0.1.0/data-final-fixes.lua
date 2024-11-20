@@ -1,4 +1,4 @@
-local data_util = require("./data-util.lua")
+require "./data-util.lua"
 
 
 -- sand changes --
@@ -125,15 +125,41 @@ ore_crushing_productivity.unit.time = 60
 ore_crushing_productivity.max_level = "infinite"
 ore_crushing_productivity.upgrade = true
 
+local ore_enriching_productivity = data.raw.technology["ore-enriching-productivity"]
+removePrerequisite(ore_enriching_productivity, "electromagnetic-science-pack")
+removePrerequisite(ore_enriching_productivity, "ore-crushing-productivity")
+removeTechIngredient(ore_enriching_productivity, "electromagnetic-science-pack")
+removeTechIngredient(ore_enriching_productivity, "metallurgic-science-pack")
+addTechIngredient(ore_enriching_productivity, "utility-science-pack", 1)
+ore_enriching_productivity.unit.count_formula = "1.5^L*1000"
+ore_enriching_productivity.unit.count = nil
+ore_enriching_productivity.unit.time = 60
+ore_enriching_productivity.max_level = "infinite"
+ore_enriching_productivity.upgrade = true
+
+local crusher2 = data.raw.recipe["crusher2"]
+replaceIngredient(crusher2, "tungsten-plate", "steel-plate", 12)
+replaceIngredient(crusher2, "tungsten-carbide", "low-density-structure", 12)
+
 local crusher3 = data.raw.recipe["crusher3"]
 replaceIngredient(crusher3, "productivity-module-2", "productivity-module", 4)
 replaceIngredient(crusher3, "efficiency-module-2", "efficiency-module", 4)
 replaceIngredient(crusher3, "speed-module-2", "speed-module", 4)
 
+local echamber1 = data.raw.recipe["echamber1"]
+replaceIngredient(echamber1, "tungsten-plate", "electronic-circuit", 12)
+
+local echamber2 = data.raw.recipe["echamber2"]
+replaceIngredient(echamber2, "superconductor", "steel-plate", 12)
+replaceIngredient(echamber2, "supercapacitor", "low-density-structure", 12)
+
 local echamber3 = data.raw.recipe["echamber3"]
 replaceIngredient(echamber3, "productivity-module-2", "productivity-module", 4)
 replaceIngredient(echamber3, "efficiency-module-2", "efficiency-module", 4)
 replaceIngredient(echamber3, "speed-module-2", "speed-module", 4)
+
+local pchamber1 = data.raw.recipe["pchamber1"]
+replaceIngredient(pchamber1, "holmium-plate", "processing-unit", 12)
 
 local pchamber2 = data.raw.recipe["pchamber2"]
 replaceIngredient(pchamber2, "productivity-module-3", "productivity-module", 12)
@@ -155,3 +181,56 @@ for k, v in pairs(data.raw.technology) do
         removeTechIngredient(v, "space-science-pack", true)
     end
 end
+
+
+-- make auto-barrel tiny --
+
+local barreling_machine = assert(data.raw.furnace["barreling-machine"])
+local unbarreling_machine = assert(data.raw.furnace["unbarreling-machine"])
+local scale = 1/3
+
+function scaleNumber(point)
+    return point * scale
+end
+
+function scalePoint(point)
+    return { scaleNumber(point[1]), scaleNumber(point[2]) }
+end
+
+function scaleCoord(coord)
+    return { x = scaleNumber(coord.x), y = scaleNumber(coord.y) }
+end
+
+function scaleBox(box)
+    return {
+        scalePoint(box[1]),
+        scalePoint(box[2])
+    }
+end
+
+function scaleMachine(machine)
+    machine.collision_box = scaleBox(machine.collision_box)
+    machine.selection_box = scaleBox(machine.selection_box)
+
+    for i, v in ipairs(machine.graphics_set.animation.layers) do
+        v.scale = 0.185
+        v.shift = scalePoint(v.shift)
+    end
+
+    for i, v in ipairs(machine.graphics_set.working_visualisations) do
+        v.north_position = scaleCoord(v.north_position)
+        v.east_position = scaleCoord(v.east_position)
+        v.south_position = scaleCoord(v.south_position)
+        v.west_position = scaleCoord(v.west_position)
+    end
+end
+
+barreling_machine.crafting_speed = 8
+barreling_machine.module_slots = 0
+barreling_machine.fluid_boxes[1].pipe_connections[1].position = {0, -0.15}
+scaleMachine(barreling_machine)
+
+unbarreling_machine.crafting_speed = 8
+unbarreling_machine.module_slots = 0
+unbarreling_machine.fluid_boxes[1].pipe_connections[1].position = {0, 0.15}
+scaleMachine(unbarreling_machine)
