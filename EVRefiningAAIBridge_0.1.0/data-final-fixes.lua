@@ -36,6 +36,23 @@ lockRecipe(advanced_ore_processing, "gravel-to-sand")
 unlockRecipe(advanced_ore_processing, "gravel-to-sand-2")
 
 
+-- merge dectorio and ev refining gravel
+
+local gravel = data.raw.item["gravel"]
+gravel.subgroup = "flooring-basic"
+gravel.place_as_tile = {
+    result = "dect-stone-gravel",
+    condition_size = 2,
+    condition = {layers = {water_tile = true}}
+}
+
+local dect_stone_gravel_tile = data.raw.tile["dect-stone-gravel"]
+dect_stone_gravel_tile.minable.result = gravel.name
+
+-- data.raw.item["dect-stone-gravel"] = nil -- causes crash
+data.raw.recipe["dect-stone-gravel"] = nil  
+
+
 -- silicon addition --
 
 local silicon_wafer_item = data.raw.item["stone-tablet"]
@@ -187,50 +204,13 @@ end
 
 local barreling_machine = assert(data.raw.furnace["barreling-machine"])
 local unbarreling_machine = assert(data.raw.furnace["unbarreling-machine"])
-local scale = 1/3
-
-function scaleNumber(point)
-    return point * scale
-end
-
-function scalePoint(point)
-    return { scaleNumber(point[1]), scaleNumber(point[2]) }
-end
-
-function scaleCoord(coord)
-    return { x = scaleNumber(coord.x), y = scaleNumber(coord.y) }
-end
-
-function scaleBox(box)
-    return {
-        scalePoint(box[1]),
-        scalePoint(box[2])
-    }
-end
-
-function scaleMachine(machine)
-    machine.collision_box = scaleBox(machine.collision_box)
-    machine.selection_box = scaleBox(machine.selection_box)
-
-    for i, v in ipairs(machine.graphics_set.animation.layers) do
-        v.scale = 0.185
-        v.shift = scalePoint(v.shift)
-    end
-
-    for i, v in ipairs(machine.graphics_set.working_visualisations) do
-        v.north_position = scaleCoord(v.north_position)
-        v.east_position = scaleCoord(v.east_position)
-        v.south_position = scaleCoord(v.south_position)
-        v.west_position = scaleCoord(v.west_position)
-    end
-end
 
 barreling_machine.crafting_speed = 8
 barreling_machine.module_slots = 0
 barreling_machine.fluid_boxes[1].pipe_connections[1].position = {0, -0.15}
-scaleMachine(barreling_machine)
+scaleMachine(barreling_machine, 1/3, 0.185)
 
 unbarreling_machine.crafting_speed = 8
 unbarreling_machine.module_slots = 0
 unbarreling_machine.fluid_boxes[1].pipe_connections[1].position = {0, 0.15}
-scaleMachine(unbarreling_machine)
+scaleMachine(unbarreling_machine, 1/3, 0.185)
